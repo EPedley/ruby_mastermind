@@ -18,52 +18,21 @@ class ComputerSolver
     @s = []
   end
 
-  # def create_all_guesses
-  #   until @all_possible_guesses.length == 1296
-  #     number = 4.times.map{rand(1..6)}.join
-  #     @all_possible_guesses.push(number)
-  #     @all_possible_guesses.uniq!
-  #     @all_possible_guesses.sort!
-  #   end
-  # end
-
-  def create_all_answers
-    choices = ["partial_guess", "exact_guess", "incorrect_guess"]
-    until @all_possible_answers.length == 15
-      answer = []
-      4.times {answer.push(choices[rand(choices.size)])}
-      @all_possible_answers.push(answer)
-      @all_possible_answers.uniq!
-    end
-  end
-
   def game
-    set_up_algorithm
+    @s = @all_possible_guesses.clone
     @code = user_prompt
     12.times {play_round}
     game_lost(@game_type, @code)
   end
 
-  def set_up_algorithm      
-    create_all_answers
-    @s = @all_possible_guesses.clone
-  end
-
   def play_round
     sleep(1)
-
-    #BREAKS IN CLUES - ERROR UNDEFINED METHOD 'SPLIT' FOR NIL CLASS
     clues = check_for_match
     update_guess(clues)
-
   end
 
-  # check the computer's guess vs. the code - return the clues as an array
   def check_for_match
-
-    #COMPUTER BREAKS HERE - SENDING NOTHING SOMETIMES BECAUSE S IS EMPTY
-    clues = compare_codes(@code, @guess)
-    
+    clues = compare_codes(@code, @guess)    
     show_results(@guess, clues)
     if is_there_a_winner(@code, @guess) then there_is_a_winner(@game_type) end
     clues 
@@ -72,21 +41,16 @@ class ComputerSolver
   def update_guess(current_clue)
     @all_possible_guesses -= [@guess]
     update_s(current_clue)
-    #@guess = minimax
-    # puts @s
-    @guess = @s.sample
+    @guess = minimax
   end
 
   def update_s(current_clue)
     @s.each do |x|
-      # puts "CODE = #{@guess} POTENTIAL GUESS = #{x}\nRESULT = #{compare_codes(@guess, x)} RESULT FOR COMPARISON = #{current_clue}"
       if compare_codes(@guess, x) != current_clue
         @s -= [x]
       end
     end 
   end
-
-#--------------------IGNORE FROM HERE
 
   def minimax
     scores = {}
@@ -94,9 +58,15 @@ class ComputerSolver
       score = @s.size - calc_worst_possible_outcome(x).to_i
       scores[x] = score
     end
-    # puts scores
+    minimax = scores.values.max
+    scores.each do |x|
+      if x[1] == minimax
+        if @s.include?(x[0])
+          return x[0]
+        end
+      end
+    end    
     scores.key(scores.values.max)
-    # exit
   end
 
   def calc_worst_possible_outcome(possible_next_guess)
@@ -122,15 +92,6 @@ class ComputerSolver
         count_for_outcomes[x] = 1
       end
     end
-    # puts count_for_outcomes
     count_for_outcomes
   end
 end
-
-
-# what do we know?
-# s is being generated correctly
-# incorrect guesses are being removed from incorrect_guesses var correctly
-# s is working
-#2435 does not work
-#CODE CHECKER IS NOT WORKING PROPERLY
