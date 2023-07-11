@@ -69,11 +69,5 @@ module TextContent
       return code
     end
   end
-
-  # def loading
-  #   sleep(1)
-  #   puts "#{"Loading...".grey}"
-  #   puts
-  # end
   
 end
